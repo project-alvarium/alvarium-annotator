@@ -39,14 +39,14 @@ impl KeyAlgorithm {
 pub struct StreamType(pub String);
 
 lazy_static! {
-    pub static ref IOTA_STREAM: StreamType = StreamType(String::from("iota"));
+    pub static ref DEMIA_STREAM: StreamType = StreamType(String::from("demia"));
     pub static ref MOCK_STREAM: StreamType = StreamType(String::from("mock"));
     pub static ref MQTT_STREAM: StreamType = StreamType(String::from("mqtt"));
 }
 
 impl StreamType {
     pub fn is_base_stream_type(&self) -> bool {
-        self == IOTA_STREAM.deref() || self == MOCK_STREAM.deref() || self == MQTT_STREAM.deref()
+        self == DEMIA_STREAM.deref() || self == MOCK_STREAM.deref() || self == MQTT_STREAM.deref()
     }
 }
 #[derive(PartialEq, Eq, Clone, Debug, Serialize, Deserialize)]
