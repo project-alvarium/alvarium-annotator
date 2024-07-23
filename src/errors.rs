@@ -4,8 +4,10 @@ pub type Result<T> = core::result::Result<T, Error>;
 
 #[derive(Debug, Error)]
 pub enum Error {
-    #[error("unknown annotation type")]
-    UnknownAnnotation,
+    #[error("unknown annotation type {0}")]
+    UnknownAnnotation(String),
+    #[error("unknown layer type {0}")]
+    UnknownLayer(String),
     #[error("annotation failed to serialize: {0}")]
     AnnotationSerialize(serde_json::Error),
 
