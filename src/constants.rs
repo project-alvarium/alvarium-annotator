@@ -7,7 +7,7 @@ pub trait Validate {
     fn validate(&self) -> bool;
 }
 
-#[derive(PartialEq, Eq, Clone, Debug, Serialize, Deserialize)]
+#[derive(PartialEq, Eq, Clone, Debug, Serialize, Deserialize, Hash)]
 pub struct HashType(pub String);
 pub static NO_HASH: Lazy<HashType> = Lazy::new(|| HashType(String::from("none")));
 pub static MD5_HASH: Lazy<HashType> = Lazy::new(|| HashType(String::from("md5")));
@@ -19,7 +19,7 @@ impl HashType {
     }
 }
 
-#[derive(PartialEq, Eq, Clone, Debug, Serialize, Deserialize)]
+#[derive(PartialEq, Eq, Clone, Debug, Serialize, Deserialize, Hash)]
 pub struct KeyAlgorithm(pub String);
 pub static ED25519_KEY: Lazy<KeyAlgorithm> = Lazy::new(|| KeyAlgorithm(String::from("ed25519")));
 
@@ -29,7 +29,7 @@ impl KeyAlgorithm {
     }
 }
 
-#[derive(PartialEq, Eq, Clone, Debug, Serialize, Deserialize)]
+#[derive(PartialEq, Eq, Clone, Debug, Serialize, Deserialize, Hash)]
 pub struct StreamType(pub String);
 pub static DEMIA_STREAM: Lazy<StreamType> = Lazy::new(|| StreamType(String::from("demia")));
 pub static MOCK_STREAM: Lazy<StreamType> = Lazy::new(|| StreamType(String::from("mock")));
@@ -40,7 +40,7 @@ impl StreamType {
         self == DEMIA_STREAM.deref() || self == MOCK_STREAM.deref() || self == MQTT_STREAM.deref()
     }
 }
-#[derive(PartialEq, Eq, Clone, Debug, Serialize, Deserialize)]
+#[derive(PartialEq, Eq, Clone, Debug, Serialize, Deserialize, Hash)]
 pub struct AnnotationType(pub String);
 
 pub static ANNOTATION_TPM: Lazy<AnnotationType> = Lazy::new(|| AnnotationType(String::from("tpm")));
@@ -98,7 +98,7 @@ impl TryFrom<&str> for AnnotationType {
     }
 }
 
-#[derive(PartialEq, Eq, Clone, Debug, Serialize, Deserialize)]
+#[derive(PartialEq, Eq, Clone, Debug, Serialize, Deserialize, Hash)]
 pub struct LayerType(pub String);
 pub static LAYER_APP: Lazy<LayerType> = Lazy::new(|| LayerType(String::from("app")));
 pub static LAYER_CICD: Lazy<LayerType> = Lazy::new(|| LayerType(String::from("cicd")));
@@ -124,7 +124,7 @@ impl TryFrom<&str> for LayerType {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, Hash)]
 pub struct SdkAction(pub String);
 pub static ACTION_CREATE: Lazy<SdkAction> = Lazy::new(|| SdkAction(String::from("create")));
 pub static ACTION_MUTATE: Lazy<SdkAction> = Lazy::new(|| SdkAction(String::from("mutate")));
