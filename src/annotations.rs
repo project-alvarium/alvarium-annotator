@@ -1,6 +1,10 @@
-use crate::constants::{self, AnnotationType, HashType, LayerType};
+use crate::constants::{self, AnnotationType, HashType, LayerType, LAYER_HOST};
 use chrono::Local;
 use serde::{Deserialize, Serialize};
+
+fn default_host() -> LayerType {
+    LAYER_HOST.clone()
+}
 
 #[derive(Clone, PartialEq, Eq, Debug, Serialize, Deserialize)]
 pub struct Annotation {
@@ -8,7 +12,9 @@ pub struct Annotation {
     pub key: String,
     pub hash: HashType,
     pub host: String,
+    #[serde(default)]
     pub tag: Option<String>,
+    #[serde(default = "default_host")]
     pub layer: LayerType,
     pub kind: AnnotationType,
     pub signature: String,
