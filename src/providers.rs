@@ -41,7 +41,7 @@ mod signature_provider {
     pub fn serialise_and_sign<P>(provider: &P, annotation: &Annotation) -> Result<String, P::Error>
     where
         P: SignProvider,
-        <P as SignProvider>::Error: From<serde_json::Error>
+        <P as SignProvider>::Error: From<serde_json::Error>,
     {
         let serialised = serde_json::to_vec(annotation)?;
         provider.sign(&serialised)
@@ -121,7 +121,7 @@ mod stream_provider {
     }
 
     #[async_trait::async_trait]
-    pub trait Publisher: Sized {
+    pub trait Publisher: Sized + Send + Sync {
         type StreamConfig: StreamConfigWrapper;
         type Error: std::error::Error;
         async fn new(cfg: &Self::StreamConfig) -> Result<Self, Self::Error>;
