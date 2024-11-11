@@ -1,6 +1,9 @@
 use crate::Annotation;
 
-pub trait Annotator: Send + Sync {
+pub trait Annotator {
     type Error: std::error::Error;
-    fn execute(&mut self, data: &[u8]) -> Result<Annotation, Self::Error>;
+    fn execute(
+        &mut self,
+        data: &[u8],
+    ) -> impl std::future::Future<Output = Result<Annotation, Self::Error>> + Send + Sync;
 }
