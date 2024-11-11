@@ -1,6 +1,7 @@
 mod hash_providers {
+    #[async_trait::async_trait]
     pub trait HashProvider {
-        fn derive(&self, data: &[u8]) -> impl std::future::Future<Output = String> + Send;
+        async fn derive(&self, data: &[u8]) -> String;
     }
 
     pub async fn derive_hash<H: HashProvider>(hash_type: H, data: &[u8]) -> String {
@@ -30,17 +31,11 @@ mod hash_providers {
 mod signature_provider {
     use crate::Annotation;
 
+    #[async_trait::async_trait]
     pub trait SignProvider {
         type Error: std::error::Error;
-        fn sign(
-            &self,
-            content: &[u8],
-        ) -> impl std::future::Future<Output = Result<String, Self::Error>> + Send + Sized;
-        fn verify(
-            &self,
-            content: &[u8],
-            signed: &[u8],
-        ) -> impl std::future::Future<Output = Result<bool, Self::Error>> + Send + Sized;
+        async fn sign(&self, content: &[u8]) -> Result<String, Self::Error>;
+        async fn verify(&self, content: &[u8], signed: &[u8]) -> Result<bool, Self::Error>;
     }
 
     pub async fn serialise_and_sign<P>(
@@ -130,25 +125,15 @@ mod stream_provider {
         pub content: &'a str,
     }
 
+    #[async_trait::async_trait]
     pub trait Publisher: Send + Sized {
         type StreamConfig: StreamConfigWrapper;
         type Error: std::error::Error;
-        fn new(
-            cfg: &Self::StreamConfig,
-        ) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send + Sized;
-        fn close(
-            &mut self,
-        ) -> impl std::future::Future<Output = Result<(), Self::Error>> + Send + Sized;
-        fn connect(
-            &mut self,
-        ) -> impl std::future::Future<Output = Result<(), Self::Error>> + Send + Sized;
-        fn reconnect(
-            &mut self,
-        ) -> impl std::future::Future<Output = Result<(), Self::Error>> + Send + Sized;
-        fn publish(
-            &mut self,
-            msg: MessageWrapper<'_>,
-        ) -> impl std::future::Future<Output = Result<(), Self::Error>> + Send + Sized;
+        async fn new(cfg: &Self::StreamConfig) -> Result<Self, Self::Error>;
+        async fn close(&mut self) -> Result<(), Self::Error>;
+        async fn connect(&mut self) -> Result<(), Self::Error>;
+        async fn reconnect(&mut self) -> Result<(), Self::Error>;
+        async fn publish(&mut self, msg: MessageWrapper<'_>) -> Result<(), Self::Error>;
     }
 }
 
