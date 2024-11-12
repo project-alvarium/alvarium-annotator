@@ -13,6 +13,7 @@ mod hash_providers {
 
         struct MockHashProvider {}
 
+        #[async_trait::async_trait]
         impl HashProvider for MockHashProvider {
             async fn derive(&self, _data: &[u8]) -> String {
                 "Derived".to_string()
@@ -62,6 +63,7 @@ mod signature_provider {
             pub private: String,
         }
 
+        #[async_trait::async_trait]
         impl SignProvider for MockSignProvider {
             type Error = crate::errors::Error;
             async fn sign(&self, _content: &[u8]) -> Result<String> {
