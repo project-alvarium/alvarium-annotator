@@ -23,6 +23,8 @@ impl HashType {
 pub struct KeyAlgorithm(pub String);
 pub static ED25519_KEY: LazyLock<KeyAlgorithm> =
     LazyLock::new(|| KeyAlgorithm(String::from("ed25519")));
+pub static CUSTOM_KEY: LazyLock<KeyAlgorithm> =
+    LazyLock::new(|| KeyAlgorithm(String::from("custom")));
 
 impl KeyAlgorithm {
     pub fn is_base_key_algorithm(&self) -> bool {
@@ -35,6 +37,8 @@ pub struct StreamType(pub String);
 pub static DEMIA_STREAM: LazyLock<StreamType> = LazyLock::new(|| StreamType(String::from("demia")));
 pub static MOCK_STREAM: LazyLock<StreamType> = LazyLock::new(|| StreamType(String::from("mock")));
 pub static MQTT_STREAM: LazyLock<StreamType> = LazyLock::new(|| StreamType(String::from("mqtt")));
+pub static CUSTOM_STREAM: LazyLock<StreamType> =
+    LazyLock::new(|| StreamType(String::from("custom")));
 
 impl StreamType {
     pub fn is_base_stream_type(&self) -> bool {
