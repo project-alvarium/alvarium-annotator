@@ -128,7 +128,7 @@ mod stream_provider {
     }
 
     #[async_trait::async_trait]
-    pub trait Publisher: Send + Sized {
+    pub trait Publisher: Sized + Send + Sync {
         type StreamConfig: StreamConfigWrapper;
         type Error: std::error::Error;
         async fn new(cfg: &Self::StreamConfig) -> Result<Self, Self::Error>;
