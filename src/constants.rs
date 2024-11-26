@@ -1,7 +1,7 @@
 use crate::errors::{Error, Result};
-use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 use std::ops::Deref;
+use std::sync::LazyLock;
 
 pub trait Validate {
     fn validate(&self) -> bool;
@@ -9,9 +9,9 @@ pub trait Validate {
 
 #[derive(PartialEq, Eq, Clone, Debug, Serialize, Deserialize, Hash)]
 pub struct HashType(pub String);
-pub static NO_HASH: Lazy<HashType> = Lazy::new(|| HashType(String::from("none")));
-pub static MD5_HASH: Lazy<HashType> = Lazy::new(|| HashType(String::from("md5")));
-pub static SHA256_HASH: Lazy<HashType> = Lazy::new(|| HashType(String::from("sha256")));
+pub static NO_HASH: LazyLock<HashType> = LazyLock::new(|| HashType(String::from("none")));
+pub static MD5_HASH: LazyLock<HashType> = LazyLock::new(|| HashType(String::from("md5")));
+pub static SHA256_HASH: LazyLock<HashType> = LazyLock::new(|| HashType(String::from("sha256")));
 
 impl HashType {
     pub fn is_base_hash_type(&self) -> bool {
@@ -21,7 +21,10 @@ impl HashType {
 
 #[derive(PartialEq, Eq, Clone, Debug, Serialize, Deserialize, Hash)]
 pub struct KeyAlgorithm(pub String);
-pub static ED25519_KEY: Lazy<KeyAlgorithm> = Lazy::new(|| KeyAlgorithm(String::from("ed25519")));
+pub static ED25519_KEY: LazyLock<KeyAlgorithm> =
+    LazyLock::new(|| KeyAlgorithm(String::from("ed25519")));
+pub static CUSTOM_KEY: LazyLock<KeyAlgorithm> =
+    LazyLock::new(|| KeyAlgorithm(String::from("custom")));
 
 impl KeyAlgorithm {
     pub fn is_base_key_algorithm(&self) -> bool {
@@ -31,9 +34,11 @@ impl KeyAlgorithm {
 
 #[derive(PartialEq, Eq, Clone, Debug, Serialize, Deserialize, Hash)]
 pub struct StreamType(pub String);
-pub static DEMIA_STREAM: Lazy<StreamType> = Lazy::new(|| StreamType(String::from("demia")));
-pub static MOCK_STREAM: Lazy<StreamType> = Lazy::new(|| StreamType(String::from("mock")));
-pub static MQTT_STREAM: Lazy<StreamType> = Lazy::new(|| StreamType(String::from("mqtt")));
+pub static DEMIA_STREAM: LazyLock<StreamType> = LazyLock::new(|| StreamType(String::from("demia")));
+pub static MOCK_STREAM: LazyLock<StreamType> = LazyLock::new(|| StreamType(String::from("mock")));
+pub static MQTT_STREAM: LazyLock<StreamType> = LazyLock::new(|| StreamType(String::from("mqtt")));
+pub static CUSTOM_STREAM: LazyLock<StreamType> =
+    LazyLock::new(|| StreamType(String::from("custom")));
 
 impl StreamType {
     pub fn is_base_stream_type(&self) -> bool {
@@ -43,23 +48,26 @@ impl StreamType {
 #[derive(PartialEq, Eq, Clone, Debug, Serialize, Deserialize, Hash)]
 pub struct AnnotationType(pub String);
 
-pub static ANNOTATION_TPM: Lazy<AnnotationType> = Lazy::new(|| AnnotationType(String::from("tpm")));
-pub static ANNOTATION_MOCK: Lazy<AnnotationType> =
-    Lazy::new(|| AnnotationType(String::from("mock")));
-pub static ANNOTATION_TLS: Lazy<AnnotationType> = Lazy::new(|| AnnotationType(String::from("tls")));
-pub static ANNOTATION_PKI: Lazy<AnnotationType> = Lazy::new(|| AnnotationType(String::from("pki")));
-pub static ANNOTATION_PKI_HTTP: Lazy<AnnotationType> =
-    Lazy::new(|| AnnotationType(String::from("pki-http")));
-pub static ANNOTATION_SOURCE_CODE: Lazy<AnnotationType> =
-    Lazy::new(|| AnnotationType(String::from("source-code")));
-pub static ANNOTATION_CHECKSUM: Lazy<AnnotationType> =
-    Lazy::new(|| AnnotationType(String::from("checksum")));
-pub static ANNOTATION_VULNERABILITY: Lazy<AnnotationType> =
-    Lazy::new(|| AnnotationType(String::from("vulnerability")));
-pub static ANNOTATION_SOURCE: Lazy<AnnotationType> =
-    Lazy::new(|| AnnotationType(String::from("src")));
-pub static ANNOTATION_SBOM: Lazy<AnnotationType> =
-    Lazy::new(|| AnnotationType(String::from("sbom")));
+pub static ANNOTATION_TPM: LazyLock<AnnotationType> =
+    LazyLock::new(|| AnnotationType(String::from("tpm")));
+pub static ANNOTATION_MOCK: LazyLock<AnnotationType> =
+    LazyLock::new(|| AnnotationType(String::from("mock")));
+pub static ANNOTATION_TLS: LazyLock<AnnotationType> =
+    LazyLock::new(|| AnnotationType(String::from("tls")));
+pub static ANNOTATION_PKI: LazyLock<AnnotationType> =
+    LazyLock::new(|| AnnotationType(String::from("pki")));
+pub static ANNOTATION_PKI_HTTP: LazyLock<AnnotationType> =
+    LazyLock::new(|| AnnotationType(String::from("pki-http")));
+pub static ANNOTATION_SOURCE_CODE: LazyLock<AnnotationType> =
+    LazyLock::new(|| AnnotationType(String::from("source-code")));
+pub static ANNOTATION_CHECKSUM: LazyLock<AnnotationType> =
+    LazyLock::new(|| AnnotationType(String::from("checksum")));
+pub static ANNOTATION_VULNERABILITY: LazyLock<AnnotationType> =
+    LazyLock::new(|| AnnotationType(String::from("vulnerability")));
+pub static ANNOTATION_SOURCE: LazyLock<AnnotationType> =
+    LazyLock::new(|| AnnotationType(String::from("src")));
+pub static ANNOTATION_SBOM: LazyLock<AnnotationType> =
+    LazyLock::new(|| AnnotationType(String::from("sbom")));
 
 impl AnnotationType {
     pub fn kind(&self) -> &str {
@@ -100,10 +108,10 @@ impl TryFrom<&str> for AnnotationType {
 
 #[derive(PartialEq, Eq, Clone, Debug, Serialize, Deserialize, Hash)]
 pub struct LayerType(pub String);
-pub static LAYER_APP: Lazy<LayerType> = Lazy::new(|| LayerType(String::from("app")));
-pub static LAYER_CICD: Lazy<LayerType> = Lazy::new(|| LayerType(String::from("cicd")));
-pub static LAYER_OS: Lazy<LayerType> = Lazy::new(|| LayerType(String::from("os")));
-pub static LAYER_HOST: Lazy<LayerType> = Lazy::new(|| LayerType(String::from("host")));
+pub static LAYER_APP: LazyLock<LayerType> = LazyLock::new(|| LayerType(String::from("app")));
+pub static LAYER_CICD: LazyLock<LayerType> = LazyLock::new(|| LayerType(String::from("cicd")));
+pub static LAYER_OS: LazyLock<LayerType> = LazyLock::new(|| LayerType(String::from("os")));
+pub static LAYER_HOST: LazyLock<LayerType> = LazyLock::new(|| LayerType(String::from("host")));
 
 impl LayerType {
     pub fn kind(&self) -> &str {
@@ -126,10 +134,12 @@ impl TryFrom<&str> for LayerType {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, Hash)]
 pub struct SdkAction(pub String);
-pub static ACTION_CREATE: Lazy<SdkAction> = Lazy::new(|| SdkAction(String::from("create")));
-pub static ACTION_MUTATE: Lazy<SdkAction> = Lazy::new(|| SdkAction(String::from("mutate")));
-pub static ACTION_TRANSIT: Lazy<SdkAction> = Lazy::new(|| SdkAction(String::from("transit")));
-pub static ACTION_PUBLISH: Lazy<SdkAction> = Lazy::new(|| SdkAction(String::from("publish")));
+pub static ACTION_CREATE: LazyLock<SdkAction> = LazyLock::new(|| SdkAction(String::from("create")));
+pub static ACTION_MUTATE: LazyLock<SdkAction> = LazyLock::new(|| SdkAction(String::from("mutate")));
+pub static ACTION_TRANSIT: LazyLock<SdkAction> =
+    LazyLock::new(|| SdkAction(String::from("transit")));
+pub static ACTION_PUBLISH: LazyLock<SdkAction> =
+    LazyLock::new(|| SdkAction(String::from("publish")));
 
 impl SdkAction {
     pub fn is_base_action(&self) -> bool {

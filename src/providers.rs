@@ -1,29 +1,29 @@
 mod hash_providers {
-
+    #[async_trait::async_trait]
     pub trait HashProvider {
-        fn derive(&self, data: &[u8]) -> String;
+        async fn derive(&self, data: &[u8]) -> String;
     }
 
-    pub fn derive_hash<H: HashProvider>(hash_type: H, data: &[u8]) -> String {
-        hash_type.derive(data)
+    pub async fn derive_hash<H: HashProvider>(hash_type: H, data: &[u8]) -> String {
+        hash_type.derive(data).await
     }
-
     #[cfg(test)]
     mod hash_provider_tests {
         use crate::HashProvider;
 
         struct MockHashProvider {}
 
+        #[async_trait::async_trait]
         impl HashProvider for MockHashProvider {
-            fn derive(&self, _data: &[u8]) -> String {
+            async fn derive(&self, _data: &[u8]) -> String {
                 "Derived".to_string()
             }
         }
 
-        #[test]
-        fn test_mock_derive() {
+        #[tokio::test]
+        async fn test_mock_derive() {
             let hash_provider = MockHashProvider {};
-            let derived = hash_provider.derive("data".as_bytes());
+            let derived = hash_provider.derive("data".as_bytes()).await;
             assert_eq!("Derived", derived)
         }
     }
@@ -32,19 +32,23 @@ mod hash_providers {
 mod signature_provider {
     use crate::Annotation;
 
+    #[async_trait::async_trait]
     pub trait SignProvider {
         type Error: std::error::Error;
-        fn sign(&self, content: &[u8]) -> Result<String, Self::Error>;
-        fn verify(&self, content: &[u8], signed: &[u8]) -> Result<bool, Self::Error>;
+        async fn sign(&self, content: &[u8]) -> Result<String, Self::Error>;
+        async fn verify(&self, content: &[u8], signed: &[u8]) -> Result<bool, Self::Error>;
     }
 
-    pub fn serialise_and_sign<P>(provider: &P, annotation: &Annotation) -> Result<String, P::Error>
+    pub async fn serialise_and_sign<P>(
+        provider: &P,
+        annotation: &Annotation,
+    ) -> Result<String, P::Error>
     where
         P: SignProvider,
         <P as SignProvider>::Error: From<serde_json::Error>,
     {
         let serialised = serde_json::to_vec(annotation)?;
-        provider.sign(&serialised)
+        provider.sign(&serialised).await
     }
 
     #[cfg(test)]
@@ -59,16 +63,17 @@ mod signature_provider {
             pub private: String,
         }
 
+        #[async_trait::async_trait]
         impl SignProvider for MockSignProvider {
             type Error = crate::errors::Error;
-            fn sign(&self, _content: &[u8]) -> Result<String> {
+            async fn sign(&self, _content: &[u8]) -> Result<String> {
                 match self.private.as_str().eq("A known and correct key") {
                     true => Ok("Signed".to_string()),
                     false => Err(Error::SignatureError),
                 }
             }
 
-            fn verify(&self, _content: &[u8], _signed: &[u8]) -> Result<bool> {
+            async fn verify(&self, _content: &[u8], _signed: &[u8]) -> Result<bool> {
                 match self.public.as_str().eq("A known and correct key") {
                     true => Ok(true),
                     false => Err(Error::VerificationError),
@@ -76,8 +81,8 @@ mod signature_provider {
             }
         }
 
-        #[test]
-        fn mock_sign_provider() {
+        #[tokio::test]
+        async fn mock_sign_provider() {
             let correct_key = "A known and correct key".to_string();
             let unknown_key = "An unknown key".to_string();
 
@@ -93,15 +98,17 @@ mod signature_provider {
 
             let annotation = mock_annotation();
 
-            let failed_signature = serialise_and_sign(&bad_mock_provider, &annotation);
+            let failed_signature = serialise_and_sign(&bad_mock_provider, &annotation).await;
             assert!(failed_signature.is_err());
-            let signature = serialise_and_sign(&mock_provider, &annotation);
+            let signature = serialise_and_sign(&mock_provider, &annotation).await;
             assert!(signature.is_ok());
 
             let ann_bytes = serde_json::to_vec(&annotation).unwrap();
-            let failed_verify = bad_mock_provider.verify("Content".as_bytes(), &ann_bytes);
+            let failed_verify = bad_mock_provider
+                .verify("Content".as_bytes(), &ann_bytes)
+                .await;
             assert!(failed_verify.is_err());
-            let verified = mock_provider.verify("Content".as_bytes(), &ann_bytes);
+            let verified = mock_provider.verify("Content".as_bytes(), &ann_bytes).await;
             assert!(verified.is_ok())
         }
     }
